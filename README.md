@@ -9,21 +9,24 @@ This is a guide and scripts to setup my old **Sony VAIO VGN-FW139E** with CentOS
 
 ## Install CentOS 7
 
-I will a USB Flash drive to install CentOS 7 and I'm using a Mac OS X 10.10 to download and setup the USB. In any Unix-like computer download Centos 7 ISO. You may go to http://centos.org/download/ to get the latest version.
+I use a USB Flash drive to install CentOS 7 and I'm using a Mac OS X 10.10 to download and setup the USB Flash drive. Download Centos 7 ISO with wget and you may go to http://centos.org/download/ to get the URL of the latest version.
 
 ```
 wget http://mirrors.unifiedlayer.com/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1503-01.iso 
 ```
 
-If you are in Mac OS X convert the ISO to DMG create the USB. You may skip this step if you are in Linux. The first command is to identify where the USB is mounted, in this case it is /dev/disk2. So, replace it for the disk that is mounted in your Mac.
+You may skip this step if you are in Linux. If you are in Mac OS X convert the ISO to DMG. The first command is to identify where the USB Flash drive is mounted, in this case it is /dev/disk2 and that's the value for USB_DISK. So, replace MOUNT_ON value for the disk that is using the USB Flash in your Mac.
 
 ``` 
 diskutil list
-diskutil umountDisk /dev/disk2
-sudo dd if=CentOS-7-x86_64-DVD-1503-01.dmg of=/dev/disk2
+USB_DISK=/dev/disk2
+diskutil umountDisk $USB_DISK
+sudo dd if=CentOS-7-x86_64-DVD-1503-01.dmg of=$USB_DISK
 
 ```
-Once it is done you can unplug the USB Flash drive, plug it in the VAIO to start the install of CentOS 7.
+If you are on Linux machine, just use the dd command with the ISO file. 
+
+Once it is done you can unplug the USB Flash drive form the Mac or Linux machine and plug it in the VAIO to start the install of CentOS 7.
 
 A few notes about the install:
 
@@ -59,8 +62,9 @@ Or you may have to plug a network cable from your router to the VAIO in order to
 
 ```
 sudo yum install -y NetworkManager-wifi
+sudo service NetworkManager restart
 ```
-[source](https://www.centos.org/forums/viewtopic.php?f=50&t=52222&start=10)
+In case you need more details, here is the [source](https://www.centos.org/forums/viewtopic.php?f=50&t=52222&start=10)
 
 If this do not work for you, a few things you can try are:
 
@@ -93,24 +97,25 @@ sudo yum -y update
 Git is installed by default so just clone this repository and execute the setup.sh script:
 
 ```
-git clone 
-cd vaio_centos_setup
+git clone https://github.com/johandry/vaio_centos_setup.git /home/$USER/Setup
+cd !$
 ./setup.sh
 ```
 
 This script - check code [here]() - will do:
 
 1. Install Cisco AnyConnect VPN Client 
-2. Install VMWare Horizon Client
-3. Install Desktop MATE 
-4. Install Puppet to automate installs
+1. Install VMWare Horizon Client
+1. Install MATE Desktop
+1. Install Cinnamon Desktop 
+1. Install Puppet to automate installs
 
 The Puppet Manifest will make sure:
 
 1. Install Docker
-2. Install Packer and Vagrant
-3. Sublime Text 3
-4. 
+1. Install Packer and Vagrant
+1. Sublime Text 3
+1. 
 
 
 
