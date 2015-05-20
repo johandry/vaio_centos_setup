@@ -22,8 +22,10 @@ create_Workspace () {
   [[ -d /home/$USER/Workspace/vaio_centos_setup ]] && info "Workspace exists" && return 1
 
   mkdir -p /home/$USER/Workspace
-  git clone git@github.com:johandry/vaio_centos_setup.git /home/$USER/Workspace/vaio_centos_setup
-  cd !$
+  git clone git@github.com:johandry/vaio_centos_setup.git /home/$USER/Workspace/vaio_centos_setup && cd !$
+
+  git config --global user.name "Johandry Amador"
+  git config --global user.email johandry@gmail.com
 }
 
 cleanup () {
