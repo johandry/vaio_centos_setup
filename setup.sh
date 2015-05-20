@@ -6,6 +6,8 @@
 # Description: Will install several programs required for Development and DepOps activities. It will install Puppet to provision and manage the content of the computer.
 #=======================================================================================================
 
+declare -r ANYCONNECT_URL=https://www.auckland.ac.nz/content/dam/uoa/central/for/current-students/postgraduate-students/documents/anyconnect-predeploy-linux-64-3.1.04072-k9.tar
+
 declare -r SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 declare -r LOG_FILE=/tmp/vaio_centos_setup.log
 
@@ -73,7 +75,45 @@ create_Workspace () {
   ok "Workspace directory created and git was setup"
 }
 
+install_EPEL () {
+  # Source: http://www.cyberciti.biz/faq/installing-rhel-epel-repo-on-centos-redhat-7-x/
+  sudo yum install epel-release
+}
 
+install_Cisco_AnyConnect_VPN_Client () {
+  # Download the client 64-bits version
+  # Source: https://www.auckland.ac.nz/en/for/current-students/cs-current-pg/cs-current-pg-support/vpn/cs-cisco-vpn-client-for-linux.html
+  wget "${ANYCONNECT_URL}" -O /tmp/anyconnect.tar
+
+  # Install Pangox libraries
+  # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
+  # Dependency: install_EPEL
+  sudo yum install pangox‐compat pangox‐devel
+
+  # Untar and install
+  # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
+  # Source: https://www.auckland.ac.nz/en/for/current-students/cs-current-pg/cs-current-pg-support/vpn/cs-cisco-vpn-client-for-linux.html
+  mkdir -p /tmp/anyconnect
+  sudo tar xf /tmp/anyconnect.tar -C /tmp/anyconnect
+  cd /tmp/anyconnect/*/vpn/
+  sudo ./vpn_install.sh
+  cd
+  sudo rm -rf /tmp/anyconnect 
+
+  # Start service
+  sudo systemctl start vpnagentd.service
+  sudo systemctl status vpnagentd.service
+
+  info "Open a browser to the VPN page"
+  # ./vpnui
+
+  # Comments:
+  #   Useful commands:
+  #   * yum provides <program>: List packages that provides a program or library
+  #   * yum list | grep xml: List installed programs
+  #   * ldconfig -p | grep xml: List installed libraries and where they are located.
+  #   * ldd vpnagentd | grep xml: Show libraries of the program and where they are linked to
+}
 
 cleanup () {
   [[ ! -d ~/Setup ]] && info "Setup directory does not exists therefore was not deleted" && return 1
@@ -90,6 +130,8 @@ finish () {
 setup () {
   create_SSH_Key
   create_Workspace
+  install_EPEL
+  install_Cisco_AnyConnect_VPN_Client
   cleanup
 }
 
