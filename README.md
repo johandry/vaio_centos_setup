@@ -97,12 +97,11 @@ sudo yum -y update
 Git is installed by default so just clone this repository and execute the setup.sh script:
 
 ```
-git clone https://github.com/johandry/vaio_centos_setup.git /home/$USER/Setup
-cd !$
+git clone https://github.com/johandry/vaio_centos_setup.git /home/$USER/Setup && cd !$
 ./setup.sh
 ```
 
-This script - check code [here]() - will do:
+This script - check code [here](https://raw.githubusercontent.com/johandry/vaio_centos_setup/master/setup.sh) - will do:
 
 1. Install Cisco AnyConnect VPN Client 
 1. Install VMWare Horizon Client

@@ -6,8 +6,9 @@
 # Description: Will install several programs required for Development and DepOps activities. It will install Puppet to provision and manage the content of the computer.
 #=======================================================================================================
 
-
 create_SSH_Key () {
+  [[ -e ~/.ssh/id_rsa ]] && info "SSH Key exists" && return 1
+
   rm -f ~/.ssh/id_rsa*
   ssh-keygen -N "" -f ~/.ssh/id_rsa -t rsa -b 4096 -C "Johandry's Sony VAIO CentOS 7"
   echo "Go to: https://github.com/settings/ssh"
@@ -18,7 +19,9 @@ create_SSH_Key () {
 }
 
 create_Workspace () {
-  mkdir /home/$USER/Workspace
+  [[ -d /home/$USER/Workspace/vaio_centos_setup ]] && info "Workspace exists" && return 1
+
+  mkdir -p /home/$USER/Workspace
   git clone git@github.com:johandry/vaio_centos_setup.git /home/$USER/Workspace/vaio_centos_setup
   cd !$
 }
@@ -27,3 +30,11 @@ cleanup () {
   cd
   rm -rf ~/Setup
 }
+
+setup () {
+  create_SSH_Key
+  create_Workspace
+  cleanup
+}
+
+setup
