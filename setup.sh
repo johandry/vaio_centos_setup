@@ -22,4 +22,8 @@ create_Workspace () {
   git clone git@github.com:johandry/vaio_centos_setup.git /home/$USER/Workspace/vaio_centos_setup
   cd !$
 }
- 
+
+cleanup () {
+  cd
+  rm -rf ~/Setup
+}
