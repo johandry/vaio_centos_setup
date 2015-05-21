@@ -60,6 +60,8 @@ create_SSH_Key () {
   cat ~/.ssh/id_rsa.pub
   echo
   echo "click on 'Add key' and delete any previous key from Johandry's Sony VAIO CentOS 7"
+  echo "Press Enter when ready"
+  read
 
   ok "SSH Key created"
 }
@@ -67,7 +69,10 @@ create_SSH_Key () {
 create_Workspace () {
   [[ -d /home/$USER/Workspace/vaio_centos_setup ]] && info "Workspace exists therefore was not created" && return 1
 
+  info "Creating Workspace"
   mkdir -p /home/$USER/Workspace
+
+  info "Cloning the VAIO CentOS Setup project"
   git clone git@github.com:johandry/vaio_centos_setup.git /home/$USER/Workspace/vaio_centos_setup && cd !$
 
   git config --global user.name "Johandry Amador"
@@ -82,7 +87,12 @@ install_EPEL () {
   sudo yum install -y epel-release
   ok "EPEL repository installed"
   # Set [priority=5]
-  sudo sed -i -e "s/\]$/\]\npriority=5/g" /etc/yum.repos.d/epel.repo 
+  if grep -q 'priority=5' /etc/yum.repos.d/epel.repo
+    then 
+    info "Priority 5 set for EPEL"
+  else
+    sudo sed -i -e "s/\]$/\]\npriority=5/g" /etc/yum.repos.d/epel.repo 
+  fi
   # For another way, change to [enabled=0] and use it only when needed
   sudo sed -i -e "s/enabled=1/enabled=0/g" /etc/yum.repos.d/epel.repo 
   # Install packages from EPEL with:
@@ -172,6 +182,27 @@ install_VMWare_Horizon_Client () {
   # Source: http://www.davemalpass.com/install-vmware-horizon-view-client-on-fedora-21-64bit/
 }
 
+install_Chrome () {
+  sudo cp "${SCRIPT_DIR}/files/google-chrome.repo" /etc/yum.repos.d/
+  sudo yum install -y google-chrome-stable
+}
+
+install_Multimedia () {
+  sudo yum -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+  sudo yum -y install http://linuxdownload.adobe.com/linux/x86_64/adobe-release-x86_64-1.0-1.noarch.rpm
+
+  sudo yum -y install flash-plugin icedtea-web vlc smplayer ffmpeg HandBrake-{gui,cli} libdvdcss gstreamer{,1}-plugins-ugly gstreamer-plugins-bad-nonfree gstreamer1-plugins-bad-freeworld
+
+}
+
+setup_Windows_Access () {
+  info "Setup NTFS Access from CentOS"
+  sudo yum --enablerepo epel -y install fuse ntfs-3g ntfsprogs ntfsprogs-gnomevfsntfsprogs ntfsprogs-gnomevfs
+  sudo echo "/dev/sda1       /mnt/win   ntfs-3g  rw,umask=0000,defaults 0 0" >> /etc/fstab  
+
+  info "Setup dual boot with Windows 8.1"
+  sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+}
 cleanup () {
   [[ ! -d ~/Setup ]] && info "Setup directory does not exists therefore was not deleted" && return 1
   cd
@@ -191,11 +222,13 @@ setup () {
   update_OS
   install_Cisco_AnyConnect_VPN_Client
   install_VMWare_Horizon_Client
+  install_Chrome
+  install_Multimedia
   # install_Cinnamon
   # install_MATE
   cleanup
 }
 
 init
-setup
+#setup
 finish
