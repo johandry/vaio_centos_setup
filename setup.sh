@@ -77,35 +77,44 @@ create_Workspace () {
 
 install_EPEL () {
   # Source: http://www.cyberciti.biz/faq/installing-rhel-epel-repo-on-centos-redhat-7-x/
-  sudo yum install epel-release
+  sudo yum install -y epel-release
 }
 
 install_Cisco_AnyConnect_VPN_Client () {
-  # Download the client 64-bits version
-  # Source: https://www.auckland.ac.nz/en/for/current-students/cs-current-pg/cs-current-pg-support/vpn/cs-cisco-vpn-client-for-linux.html
-  wget "${ANYCONNECT_URL}" -O /tmp/anyconnect.tar
+  if [[ -e /opt/cisco/anyconnect/bin/vpnui ]]
+    then
+    info "Cisco AnyConnect VPN Client installed therefore was not installed" 
+  else
+    info "Installing Cisco AnyConnect VPN Client"
+    # Download the client 64-bits version
+    # Source: https://www.auckland.ac.nz/en/for/current-students/cs-current-pg/cs-current-pg-support/vpn/cs-cisco-vpn-client-for-linux.html
+    wget "${ANYCONNECT_URL}" -O /tmp/anyconnect.tar
 
-  # Install Pangox libraries
-  # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
-  # Dependency: install_EPEL
-  sudo yum install pangox‐compat pangox‐devel
+    # Install Pangox libraries
+    # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
+    # Source: https://pario.no/2014/09/30/fix-cisco-anyconnect-on-centos-7/
+    # Dependency: install_EPEL
+    sudo yum install -y pangox‐compat 
 
-  # Untar and install
-  # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
-  # Source: https://www.auckland.ac.nz/en/for/current-students/cs-current-pg/cs-current-pg-support/vpn/cs-cisco-vpn-client-for-linux.html
-  mkdir -p /tmp/anyconnect
-  sudo tar xf /tmp/anyconnect.tar -C /tmp/anyconnect
-  cd /tmp/anyconnect/*/vpn/
-  sudo ./vpn_install.sh
-  cd
-  sudo rm -rf /tmp/anyconnect 
+    # Untar and install
+    # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
+    # Source: https://www.auckland.ac.nz/en/for/current-students/cs-current-pg/cs-current-pg-support/vpn/cs-cisco-vpn-client-for-linux.html
+    mkdir -p /tmp/anyconnect
+    sudo tar xf /tmp/anyconnect.tar -C /tmp/anyconnect
+    cd /tmp/anyconnect/*/vpn/
+    sudo ./vpn_install.sh
+    cd
+    sudo rm -rf /tmp/anyconnect 
+    ok "Cisco AnyConnect VPN Client installed"
+  fi
 
+  info "Starting Cisco AnyConnect VPN Service"
   # Start service
   sudo systemctl start vpnagentd.service
   sudo systemctl status vpnagentd.service
 
   info "Open a browser to the VPN page"
-  # ./vpnui
+  /opt/cisco/anyconnect/bin/vpnui
 
   # Comments:
   #   Useful commands:
@@ -113,6 +122,16 @@ install_Cisco_AnyConnect_VPN_Client () {
   #   * yum list | grep xml: List installed programs
   #   * ldconfig -p | grep xml: List installed libraries and where they are located.
   #   * ldd vpnagentd | grep xml: Show libraries of the program and where they are linked to
+}
+
+install_Cinnamon () {
+  # Install Cinnamon packages
+  # Dependency: install_EPEL
+  sudo yum install -y cinnamon*
+}
+
+install_MATE () {
+  sudo yum groups install -y "MATE Desktop"
 }
 
 cleanup () {
