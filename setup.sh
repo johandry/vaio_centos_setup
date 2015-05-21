@@ -7,6 +7,7 @@
 #=======================================================================================================
 
 declare -r ANYCONNECT_URL=https://www.auckland.ac.nz/content/dam/uoa/central/for/current-students/postgraduate-students/documents/anyconnect-predeploy-linux-64-3.1.04072-k9.tar
+declare -r VMWARE_HORIZON_CLIENT_URL=https://download3.vmware.com/software/view/viewclients/CART14Q4/VMware-Horizon-Client-3.2.0-2331566.x86.bundle 
 
 declare -r SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 declare -r LOG_FILE=/tmp/vaio_centos_setup.log
@@ -76,8 +77,22 @@ create_Workspace () {
 }
 
 install_EPEL () {
+  info "Installing EPEL repository"
   # Source: http://www.cyberciti.biz/faq/installing-rhel-epel-repo-on-centos-redhat-7-x/
   sudo yum install -y epel-release
+  ok "EPEL repository installed"
+  # Set [priority=5]
+  sudo sed -i -e "s/\]$/\]\npriority=5/g" /etc/yum.repos.d/epel.repo 
+  # For another way, change to [enabled=0] and use it only when needed
+  sudo sed -i -e "s/enabled=1/enabled=0/g" /etc/yum.repos.d/epel.repo 
+  # Install packages from EPEL with:
+  # yum --enablerepo=epel install [Package] 
+}
+
+update_OS () {
+  info "Updating CentOS 7"
+  sudo yum -y update
+  ok "CentOS 7 is updated"
 }
 
 install_Cisco_AnyConnect_VPN_Client () {
@@ -94,7 +109,7 @@ install_Cisco_AnyConnect_VPN_Client () {
     # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
     # Source: https://pario.no/2014/09/30/fix-cisco-anyconnect-on-centos-7/
     # Dependency: install_EPEL
-    sudo yum install -y pangox‐compat 
+    sudo yum --enablerepo=epel install -y pangox‐compat 
 
     # Untar and install
     # Source: http://oit.ua.edu/wp-content/uploads/2014/08/Linux.pdf
@@ -125,13 +140,36 @@ install_Cisco_AnyConnect_VPN_Client () {
 }
 
 install_Cinnamon () {
+  info "Installing Cinnammon Desktop"
   # Install Cinnamon packages
   # Dependency: install_EPEL
-  sudo yum install -y cinnamon*
+  sudo yum --enablerepo=epel install -y cinnamon*
+  ok "Cinnammon Desktop installed"
 }
 
 install_MATE () {
-  sudo yum groups install -y "MATE Desktop"
+  info "Installing MATE Desktop"
+  # Install MATE Desktop group of packages
+  # Dependency: install_EPEL
+  sudo yum --enablerepo=epel groups install -y "MATE Desktop"
+  ok "MATE Desktop installed"
+}
+
+install_VMWare_Horizon_Client () {
+  # Install dependencies. These packages are 32-bit version
+  sudo yum install -y glibc.i686 libgcc.i686 gtk2-engines.i686 PackageKit-gtk-module.i686 libpng12.i686 libXScrnSaver.i686 openssl-libs.i686 openssl-devel.i686 libxml2.i686 atk-devel.i686 gtk2-devel.i686 libxml2-devel.i686 libcanberra-gtk2.i686
+  cd /usr/lib
+  sudo ln -s /usr/lib/libcrypto.so.1.0.1e libssl.so.1.0.1
+  sudo ln -s /usr/lib/libcrypto.so.1.0.1e libcrypto.so.1.0.1
+
+  # Downloading VMWare Horizon Client
+  wget ${VMWARE_HORIZON_CLIENT_URL} -O /tmp/VMware-Horizon-Client.bundle
+
+  info "Do NOT select USB, Printing or any other extra feature. Just the basics"
+  chmod +x /tmp/VMware-Horizon-Client.bundle
+  sudo /tmp/VMware-Horizon-Client.bundle
+
+  # Source: http://www.davemalpass.com/install-vmware-horizon-view-client-on-fedora-21-64bit/
 }
 
 cleanup () {
@@ -150,7 +188,11 @@ setup () {
   create_SSH_Key
   create_Workspace
   install_EPEL
+  update_OS
   install_Cisco_AnyConnect_VPN_Client
+  install_VMWare_Horizon_Client
+  # install_Cinnamon
+  # install_MATE
   cleanup
 }
 
