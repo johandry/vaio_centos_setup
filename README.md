@@ -15,7 +15,7 @@ I use a USB Flash drive to install CentOS 7 and I'm using a Mac OS X 10.10 to do
 wget http://mirrors.unifiedlayer.com/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1503-01.iso 
 ```
 
-You may skip this step if you are in Linux. If you are in Mac OS X convert the ISO to DMG. The first command is to identify where the USB Flash drive is mounted, in this case it is /dev/disk2 and that's the value for USB_DISK. So, replace MOUNT_ON value for the disk that is using the USB Flash in your Mac.
+In Mac OS X convert the ISO to DMG. The first command is to identify where the USB Flash drive is mounted, in this case it is /dev/disk2 and that's the value for USB_DISK. So, replace MOUNT_ON value for the disk that is using the USB Flash in your Mac.
 
 ``` 
 diskutil list
@@ -24,9 +24,8 @@ diskutil umountDisk $USB_DISK
 sudo dd if=CentOS-7-x86_64-DVD-1503-01.dmg of=$USB_DISK
 
 ```
-If you are on Linux machine, just use the dd command with the ISO file. 
 
-Once it is done you can unplug the USB Flash drive form the Mac or Linux machine and plug it in the VAIO to start the install of CentOS 7.
+Once it is done you can unplug the USB Flash drive form the Mac and plug it in the VAIO to start the install of CentOS 7.
 
 A few notes about the install:
 
